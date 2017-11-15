@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"  ?>
+
+<phpunit colors="true">
+
+    <testsuite name="Mes premiers test">
+        <directory>
+            ./tests
+        </directory>
+    </testsuite>
+</phpunit>
+

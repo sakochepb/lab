@@ -1,0 +1,21 @@
+{
+    "name": "sdebiche/slim3",
+    "authors": [
+        {
+            "name": "Sak oche",
+            "email": "sakina65@hotmail.com"
+        }
+    ],
+    "autoload":
+    {
+        "psr-4":{
+            "App\\": "app/"
+        }
+
+    },
+    "require": {
+        "slim/slim": "^3.8",
+        "slim/twig-view": "^2.3",
+        "swiftmailer/swiftmailer": "^6.0"
+    }
+}

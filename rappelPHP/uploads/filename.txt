@@ -1,0 +1,1743 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+
+    <title>weSend</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+                <meta name="robots" content="noindex"/>
+        <link rel="stylesheet" type="text/css" media="screen" href="/css/client/default/jquery-ui-1.8.7.custom.css" />
+<link rel="stylesheet" type="text/css" media="screen" href="/css/client/default/style_DEFAULT_2.css" />
+<link rel="stylesheet" type="text/css" media="screen" href="/css/client/6399/custom.css" />
+    
+<script type="text/javascript">
+// <![CDATA[
+(function()
+{
+    function str_replace (search, replace, subject, count) 
+    {
+            j = 0,
+            temp = '',
+            repl = '',
+            sl = 0,        fl = 0,
+            f = [].concat(search),
+            r = [].concat(replace),
+            s = subject,
+            ra = r instanceof Array,        sa = s instanceof Array;
+        s = [].concat(s);
+        if (count) {
+            this.window[count] = 0;
+        } 
+        for (i = 0, sl = s.length; i < sl; i++) {
+            if (s[i] === '') {
+                continue;
+            }        for (j = 0, fl = f.length; j < fl; j++) {
+                temp = s[i] + '';
+                repl = ra ? (r[j] !== undefined ? r[j] : '') : r[0];
+                s[i] = (temp).split(f[j]).join(repl);
+                if (count && s[i] !== temp) {                this.window[count] += (temp.length - s[i].length) / f[j].length;
+                }
+            }
+        }
+        return sa ? s : s[0];
+    }
+ 
+    window.i18n = 
+    {
+      getCulture : function() 
+      {
+          return 'en';
+      },
+      
+      words:
+      {
+        'Enlever':'Remove','En attente':'Pending','Chargement':'Loading','Envoi en cours':'Sending in progress','Complété':'Completed','Terminé':'Finished','Annulé':'Cancelled','Stoppé':'Stopped','Echec lors du chargement du fichier':'Failed to load file','Scan de l\'antivirus en cours':'Antivirus scan in progress','Virus détecté':'Virus detected','Le fichier est vide':'File size limit exceeded','Type de fichier non autorisé':'Invalid file type','Espace insuffisant':'Insufficient space','Les deux mot de passe de l\'envoi ne correspondent pas':'The two sending passwords do not match','Les deux mot de passe de cryptage ne correspondent pas':'The two encryption passwords do not match','Téléchargement du fichier':'File download','Vous n\'êtes pas autorisé à télécharger ce fichier.':'You are not authorised to download this file.','Une erreur est survenue lors du téléchargement du fichier.':'An error occurred while downloading the file.','jours':'day','jour':'day','Expire le':'Expires on','Valider':'Validate'      } 
+    };
+   
+    window.__ = function(key, values)
+    {
+      var translate = (i18n.words[key] ? i18n.words[key] : key);
+    
+      if(values !== undefined)
+      {
+          //str_replace
+          for(var i in values)
+          {
+              if(values.hasOwnProperty(i) && typeof values[i] == 'string')
+              {
+                  translate = str_replace(i, values[i], translate);
+              }
+          }
+      }
+      
+      return translate;
+    };
+})();
+
+var handlerI18n = 
+{};
+
+handlerI18n.statutAttente = 'Pending';
+handlerI18n.statutChargement = 'Loading';
+handlerI18n.statutComplete = 'Completed';
+handlerI18n.statutCancelled = 'Cancelled';//Cancelled
+handlerI18n.statutStopped = 'Stopped';//Stopped
+handlerI18n.echecChargement = 'Failed to load file';
+handlerI18n.scanAntivirus = 'Antivirus scan in progress';
+handlerI18n.virusDetecte = 'Virus detected';
+
+//erreur swfupload
+handlerI18n.fileZeroByte = 'The file is empty';//Cannot upload Zero Byte files.
+handlerI18n.fileTooBig = 'File size limit exceeded';//"File is too big."
+handlerI18n.invalidFileType = 'Invalid file type';//Invalid File Type.
+
+//utilisé pour ckeditor
+var scriptI18n = {};
+scriptI18n.changeTextEditor = {};
+scriptI18n.chargeEditeur = {};
+	
+scriptI18n.changeTextEditor.modeSimple = 'Simple mode';
+scriptI18n.changeTextEditor.modeAvance = 'Advanced mode';
+
+scriptI18n.chargeEditeur.lang = 'en';
+
+// ]]>
+
+</script>
+    <script type="text/javascript" src="/js/libs_1.js"></script>
+<script type="text/javascript" src="/js/script_4.js"></script>
+<script type="text/javascript" src="/js/html5shiv.js"></script>
+<script type="text/javascript" src="/cookiesDirectives/jquery.cookiesdirective.js"></script>
+<script type="text/javascript" src="/js/jEditable.js"></script>
+<script type="text/javascript" src="/js/app.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <script src="https://storage.googleapis.com/code.getmdl.io/1.0.0/material.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <meta name="robots" content="index,follow,noarchive"/>
+                <link rel="shortcut icon" href="/css/client/default/images/favicon.ico"/>
+        <script type="text/javascript">
+        var configPath = "https://www2.wesend.com/";
+        var imagePath = "/css/client/default/images/";
+        var Dropcloud = Dropcloud || {};
+        Dropcloud.context = Dropcloud.context || {};
+        Dropcloud.context.page =
+        {
+            uri: '/client/listingCommandes?idClient=436869',
+            url: 'https://www2.wesend.com/client/listingCommandes?idClient=436869'
+        };
+        Dropcloud.context.user =
+        {
+            hash: '119c57600f3d572f60951669e360f2b92559d015ae95caddc6055e72ae31f0a5',
+            id_lang: '1',
+            activeFlash: null,
+            useFlash: null        };
+        Dropcloud.context.user.activeFlash = detectFlash();
+        if (Dropcloud.context.user.useFlash === null)
+            Dropcloud.context.user.useFlash = Dropcloud.context.user.activeFlash;
+    </script>
+    <style>
+                #container #inner {
+            padding-bottom: 69px;
+        }
+
+        #container #inner.connecte {
+            padding-bottom: 0px;
+        }
+
+            </style>
+</head>
+<body
+    id="mTemplate" class="connecte  en"    class=" en">
+
+
+<div id="container" class="superAdmin">
+
+
+
+    <div id="divHeaderLine">
+
+            <div id="divHeaderLine_content">
+        <div id='infoLog'>
+          					<span id="nav-welcome" style="float: right;">
+								<a class="fonce deconnexion"
+                                   href="/account/logout">Logout</a>
+							</span>
+            <span style='float: right; padding-left: 5px; padding-right: 5px;'>|</span>
+                            <div class="nav-langue">
+                    <div class="nav-langs"><div class="current-nav-lang"><span class='nav-lang nav-lang-en'></span>
+<span class="nav-label">
+English</span>
+                <span class="nav-dropdown "></span><div style="clear:both"></div></div><ul><li>
+            <a href="/client/listingCommandes?idClient=436869&culture=fr">
+                <span class='nav-lang nav-lang-fr'></span><span class="nav-label">Français</span>
+                <div style="clear:both"></div></a></li><li><a href="/client/listingCommandes?idClient=436869&culture=es">
+                <span class='nav-lang nav-lang-es'></span><span class="nav-label">Español</span><div style="clear:both"></div></a></li><li>
+            <a href="/client/listingCommandes?idClient=436869&culture=nl"><span class='nav-lang nav-lang-nl'></span><span class="nav-label">Nederlands</span>
+                <div style="clear:both"></div></a></li><li><a href="/client/listingCommandes?idClient=436869&culture=de">
+                <span class='nav-lang nav-lang-de'></span><span class="nav-label">Deutsch</span><div style="clear:both"></div></a></li><li><a href="/client/listingCommandes?idClient=436869&culture=pt">
+                <span class='nav-lang nav-lang-pt'></span><span class="nav-label">Português</span><div style="clear:both"></div></a></li>            <li><a href="/client/listingCommandes?idClient=436869&culture=it">
+                <span class='nav-lang nav-lang-it'></span><span class="nav-label">Italiano</span><div style="clear:both"></div></a></li>    </ul></div>
+        
+<script type="text/javascript">
+var $jq = jQuery.noConflict();
+(function()
+{
+$jq(document).ready(function()
+{
+$jq('.nav-langs').mouseenter(function(event){
+$jq(this).find('ul').show();
+});
+$jq('.nav-langs').mouseleave(function(event){
+$jq(this).find('ul').hide();
+});
+$jq('.nav-langs li').hover(function(event){
+$jq(this).addClass('hover');
+},
+function() {
+$jq(this).removeClass('hover');
+}
+);
+});
+})();
+</script>
+                </div>
+
+                <span style='float: right; padding-left: 5px; padding-right: 5px;'>|</span>
+
+                <a href="/account" style="float: right;">
+                    <span class="infoUsername">sdebiche@wesend.com</span>
+                </a>
+            
+                            <span style='float: right; padding-left: 5px; padding-right: 5px;'>|</span>
+
+                <span style="float: right;">
+									Super admin
+								</span>
+                    </div>
+    </div>
+</div>
+
+
+<div id="publicLogo" class=" ">
+<div id='headerEc'>
+    <div id="logoHeader" class=" ">
+                                                        <a href="/">
+                                                    <div style="height: 110px;max-width: 288px;overflow: hidden;">
+                                <img src="/css/client/6399/images/_logo_header_ec.jpg" style="max-height: 110px;"/>
+                            </div>
+                                            </a>
+                                        </div>
+</div>
+        <!-- menu connexion -->
+    <div id='divMenuConnexion'
+                class="connecte " >
+        <div style="font-size: 11px;padding-top: 5px;float:right;">
+                                                <div style='float: left;' class="intituleOffre">
+                                                    <a style="text-decoration:underline"
+                               href="/offer/subscribe">COMPANY                                                                                            </a>
+                        &nbsp;
+                    </div>
+                                                                
+                                            </div>
+                <div style="font-size: 11px;padding-top: 5px;clear:both;float:right;color: #8592a0;">
+                        
+                                                            Your subscription expires on 28/05/2018                                        [
+
+                        
+                                                                                                            <a href='/en/offer/renew'
+                                           style='text-decoration: underline;'>Renew</a>,
+                                                                    
+                            
+
+
+                        
+
+
+
+
+
+                        <a style='text-decoration: underline;'
+                           href="/offer/subscribe">Update</a>]                                                </div>
+                                    </div> <!-- fin divMenuConnexion -->
+<div style="clear:both"></div>
+ <div id='menuEc' class=" menuEc en"><div id="menuEcContainer" class="">
+            <a class="lien_menuEc" href="/send">Send</a>                            <a class="lien_menuEc" href="/file?reception=1">Inbox</a>                        <a class="lien_menuEc" href="/file">My files</a>                <a class="lien_menuEc" href="/send/list">My sent files</a>                <a class="lien_menuEc" href="/my-contact">My contacts</a>    </div>
+</div>
+<div style="clear:both"></div>
+</div>
+<!-- fin headerEc -->
+<div id="nav-utility" >
+    <div id="menuSecond">
+        <ul id="user-nav">
+                            <li class="drop">
+                    <a class="menuSecondA" href="#"  >Super Administration</a>
+
+                    <div class="dropdown ">
+                        - <a href="/marketing/"
+                             class="user_nav_submenu">Marketing</a><br/>
+                        - <a href="/mailjet/trigger"
+                             class="user_nav_submenu">Triggers</a><br/>
+                      
+                        - <a href="/client"
+                             class="user_nav_submenu">Client</a><br/>
+                        - <a href="/client/listCommande"
+                             class="user_nav_submenu">Orders</a><br/>
+                        - <a href="/client/comptabilite"
+                             class="user_nav_submenu">Accounting</a><br/>
+                        - <a href="/client/comptabiliteAbo"
+                             class="user_nav_submenu">Subscriptions</a><br/>
+                        - <a href="/configuration"
+                             class="user_nav_submenu">Configuration</a><br/>
+                        - <a href="/configuration/envoiEmail"
+                             class="user_nav_submenu">Emailing</a><br/>
+                        - <a href="/client/listTermsOfInfo"
+                                 class="user_nav_submenu">Gestion des messages de maintenance</a>
+                            <br/>
+
+                        - <a href="/client/log"
+                             class="user_nav_submenu">Event logs</a><br/>
+                        - <a href="/client/listingAllFiles"
+                             class="user_nav_submenu">List files</a><br/>
+                        - <a href="/client/prospects?page=1"
+                             class="user_nav_submenu">Prospects à traiter</a><br/>
+                        - <a href="/client/demandesDemo?page=1"
+                             class="user_nav_submenu">Demandes de démo</a><br/>
+                        - <a href="/search/searchDownload"
+
+                             class="user_nav_submenu">Search download</a><br/>
+                        - <a href="/client/statClientSemaine"
+                             class="user_nav_submenu">Statistics</a><br/>
+                        - <a href="/client/notes"
+                             class="user_nav_submenu">Notes</a><br/>
+                        - <a href="/treeQuestion/list"
+                             class="user_nav_submenu">Questions</a><br/>
+                        - <a href="/codePromo/list"
+                             class="user_nav_submenu">Promotional code</a><br/>
+                        - <a href="/configuration/phpinfo"
+                             class="user_nav_submenu" target="_blank">Phpinfo</a><br/>
+                    </div>
+                </li>
+                                        
+                                    <li class="drop">
+                        <a class="menuSecondA" href="#"  >Administration</a>
+                        <div class="dropdown ">
+                                                            - <a href="/user/list?idClient=6399"
+                                     class="user_nav_submenu">User management</a><br/>
+                                                                                                                            - <a href="/entity/list"
+                                         class="user_nav_submenu">Manage entities</a><br/>
+                                                                                                    - <a href="/account/custom"
+                                         class="user_nav_submenu">Customisation</a><br/>
+                                                                - <a href="/client/log?idClient=6399"
+                                     class="user_nav_submenu">Event logs</a><br/>
+                                - <a
+                                    href="/client/listingAllFiles?idClient=6399"
+                                    class="user_nav_submenu">File Management</a><br/>
+                                                                    - <a href="/client/ip"
+                                         class="user_nav_submenu">IP management</a><br/>
+                                                                - <a href="/client/option"
+                                     class="user_nav_submenu">Option management</a><br/>
+                                - <a href="/client/stats"
+                                     class="user_nav_submenu">Usage report</a><br/>
+                                - <a
+                                    href="/configuration/dispo?idClient=6399"
+                                    class="user_nav_submenu">Availability report</a><br/>
+                                                                                                                                    - <a href="/client/emailContact"
+                                         class="user_nav_submenu">Contact email management</a>
+                                    <br/>
+                                                                                                                                    - <a href="/api/show"
+                                         class="user_nav_submenu">Manage API</a><br/>
+                                                                                    </div>
+                    </li>
+                
+                                        <li class="drop">
+                <a class="menuSecondA"  href="#">My account</a>
+
+                <div class="dropdown">
+
+
+
+
+
+
+                    - <a href="/account/profil"
+                         class="user_nav_submenu">Edit</a><br/>
+                                            - <a href="/account/resetPassword"
+                             class="user_nav_submenu">Change my password</a><br/>
+                    
+                                                                                - <a href="/account/statistique"
+                         class="user_nav_submenu">My statistics</a><br/>
+                                        
+                    
+
+
+
+
+                                            - <a href="/account/settings"
+                             class="user_nav_submenu">Parameters</a><br/>
+                    
+                    
+                    
+                                            - <a href="/i18n/list"
+                             class="user_nav_submenu">Translation</a><br/>
+                                                        </div>
+            </li>
+                        <li>
+                                                    <a class="menuSecondA"                        href="mailto:info@wesend.com">Contact</a>
+                            </li>
+                            <li><a class="menuSecondA"                        href="/screencast">Help</a></li>
+                    </ul>
+    </div>
+</div>
+<div
+    id='inner' class="connecte  " style="height:100%!important;">
+    <div id="subMenuBar"></div>
+
+  <div id="pageEditClient" class="contentPageWidth">
+       
+  <div id="tabs" style="clear:both">
+     
+    	<ul>
+  		<li><a id="gestion_edition" href="#tabs-edition">Edit company information centre d'art contemporain frank popper</a></li>
+  		<li><a id="gestion_users" href="#tabs-users">User management</a></li>
+  		<li><a id="gestion_ip" href="#tabs-ip">IP restriction</a></li>
+     	<li><a id="gestion_options" href="#tabs-options">List of options</a></li>
+  		<li><a id="gestion_variables" href="#tabs-variables">Liste des variables</a></li>
+  		
+  		<li><a id="gestion_emails" href="#tabs-emails">Emails</a></li>
+  		
+  		<li><a id="gestion_fichiers" href="#tabs-fichiers">File Management</a></li>   
+  		<li><a id="gestion_commandes" href="#tabs-commandes">Order Management</a></li>
+  		<li><a id="gestion_invoices" href="#tabs-invoices">Invoice management</a></li>
+  		<li><a id="gestion_notes" href="#tabs-notes">Notes</a></li>
+		<li><a id="gestion_courriers" href="#tabs-courriers">Messages</a></li>
+	</ul> 
+	
+  
+  	
+    	<div id="tabs-edition">
+    	   <img src="/css/client/default/images/ajax-loader_moyen_1.gif" alt="loading..."/>
+    	</div>
+  
+  	
+      <div id="tabs-users">
+        <img src="/css/client/default/images/ajax-loader_moyen_1.gif" alt="loading..."/>       
+      </div>
+    
+  	
+    	<div id="tabs-ip">
+    	   <img src="/css/client/default/images/ajax-loader_moyen_1.gif" alt="loading..."/>
+    	</div>  
+  
+  	
+    	<div id="tabs-options">
+    	   <img src="/css/client/default/images/ajax-loader_moyen_1.gif" alt="loading..."/>
+    	</div>
+  
+  	
+    	<div id="tabs-variables">
+    	   <img src="/css/client/default/images/ajax-loader_moyen_1.gif" alt="loading..."/>
+    	</div>
+  
+  	
+    	<div id="tabs-emails">
+        <img src="/css/client/default/images/ajax-loader_moyen_1.gif" alt="loading..."/>       
+      </div>
+    
+  	
+    	<div id="tabs-fichiers">
+        <img src="/css/client/default/images/ajax-loader_moyen_1.gif" alt="loading..."/>       
+      </div>
+  
+  
+      	<div id="tabs-invoices">
+        <img src="/css/client/default/images/ajax-loader_moyen_1.gif" alt="loading..."/>    
+    	</div>
+    
+  	
+      <div id="tabs-notes">
+        <img src="/css/client/default/images/ajax-loader_moyen_1.gif" alt="loading..."/>       
+      </div>
+    
+  	
+    	<div id="tabs-courriers">
+        <img src="/css/client/default/images/ajax-loader_moyen_1.gif" alt="loading..."/>       
+      </div>
+  <script type="text/javascript">
+      
+(function()
+{ 
+  /*__________________________________________________________________________________*/ 
+  JQ(document).ready(function()
+  {
+    JQ("#tabs").tabs({ selected: 7 }); 
+    
+    JQ('#gestion_fichiers').bind('click', redirectGestionFichiers);
+    JQ('#gestion_users').bind('click', redirectGestionUsers);
+    JQ('#gestion_edition').bind('click', redirectEdition);  
+    JQ('#gestion_options').bind('click', redirectOptions);
+    JQ('#gestion_variables').bind('click', redirectVariables);
+    JQ('#gestion_ip').bind('click', redirectIp);   
+    JQ('#gestion_notes').bind('click', redirectNote);  
+	JQ('#gestion_courriers').bind('click', redirectCourrier);  
+	JQ('#gestion_invoices').bind('click', redirectInvoices);  
+	JQ('#gestion_commandes').bind('click', redirectCommande);  
+
+	JQ('#gestion_emails').bind('click', function() {
+		console.log("click");
+		  document.location.href = configPath + 'client/emails?client=436869';
+	});  
+  });
+  
+  function redirectInvoices(event)
+  {                                                          
+      document.location.href = configPath + 'client/invoiceList?client=436869';
+  }
+  
+  function redirectEdition(event)
+  {
+      window.location.href = configPath+'client/edit?id=436869#tabs-edition';
+  }
+  
+  function redirectOptions(event)
+  {
+      window.location.href = configPath+'client/edit?id=436869#tabs-options';
+  }
+      
+  function redirectVariables(event)
+  {
+      window.location.href = configPath+'client/edit?id=436869#tabs-variables';
+  }
+  function redirectIp(event)
+  {
+      window.location.href = configPath+'client/edit?id=436869#tabs-ip';
+  }
+  function redirectCourrier(event)
+  {
+      document.location.href = configPath + 'client/courrier?client=436869';
+  }
+  /*__________________________________________________________________________________*/
+  function redirectGestionFichiers(event)
+  {
+      document.location.href = configPath + 'client/listingFiles?idClient=436869';
+  }
+  
+  /*__________________________________________________________________________________*/
+  function redirectGestionUsers(event)
+  {
+      document.location.href = configPath + 'client/listingUsers?idClient=436869';
+  }   
+  
+  
+  /*__________________________________________________________________________________*/
+  function redirectCommande(event)
+  {
+      document.location.href = configPath + 'client/listingCommandes?idClient=436869';
+  }
+  
+  function redirectNote(event)
+  {
+      document.location.href = configPath + 'client/note?client=436869';
+  }
+  
+})();
+</script>
+   <div class="adduserbutt">
+      <a href="/client/orderAdd?idClient=436869">Add an order</a>
+      </div>
+  	<div id="tabs-commandes">
+        <div style="clear:both">
+      <ul  class="nav nav-pills ">
+                    <li class="active">
+                      <a>
+                        <span class="badge pull-right">7</span>
+                       COMMANDES
+                      </a>
+                    </li>
+                    <li  >
+                        <a style='background-color:#FFB733; color:#fff;' href='#' onclick="exportCsv();"> 
+                           
+                            
+                        <span class="glyphicon glyphicon-th-list"></span>
+
+                             
+                             <span>Export csv</span>
+                         </a>
+                        </li>
+                   
+        </ul>
+
+       				
+		  
+        
+      <table class="styleTable" id="tableCommande" cellspacing="0" cellpadding="0">
+      		<tr class="entete">
+      		    <td class="colonneRef">Ref</td>
+      	 		  <td class="colonneDateCommande">Order date</td>
+      	 		  <td class="colonneDateExpiration">Expiry date</td>
+      	 		  <td class="colonneIdCLient">Client Id (User Id)</td>
+      	 		   <td class="colonnePays">Country</td>
+      	 		  
+                          <td class="colonneMontantHt">Amount excl. VAT</td>
+      			  <td class="colonneTypePaiment">Type of payment</td>
+      			  <td class="colonneTypeCommande">Type of order</td>
+      			  <td class="colonneStatut">Status</td>
+      		          <td class="colonneEntreprise">Company</td>
+      		          <td class="colonneUserEmail">Email</td>
+      		          <td class="colonneAction">Action</td>
+      		</tr>
+      		
+          <!-- contenu du tableau -->
+          <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type='text/javascript' src="http://cdnjs.cloudflare.com/ajax/libs/jquery-ajaxtransport-xdomainrequest/1.0.1/jquery.xdomainrequest.min.js"></script>
+        <tr class="content"  >
+        <td class="colonneRef"><a href='/offer/orderForm?ref=MY17-09-11-114726'
+                                  target='_blank'>MY17-09-11-114726</a></td>
+        <td class="colonneDateCommande">
+            11/09/2017 to 11:47        </td>
+        <td class="colonneDateExpiration">
+            1 mois        </td>
+
+        <td class="colonneIdCLient">
+            <a href="/client/edit?id=436869">436869</a><a
+                href="/user/edit?id=1296629127">(1296629127</a>)
+        </td>
+
+        <td class="colonnePays">
+            France        </td>
+
+        <td class="colonneMontantHt">
+                            7                    </td>
+
+
+        <td class="colonneTypePaiment">
+
+            Abonnement par carte                    </td>
+        <td class="colonneTypeCommande">Renouvellement de compte(s) </td>
+        <td class="colonneStatut">Remboursée </td>
+
+        <td class="colonneEntreprise"><a target="_blank"
+                                         href="/client/edit?id=436869">centre d'art contemporain frank popper</a>
+        </td>
+        <td class="colonneUserEmail">
+            <a href="/client/edit?id=436869">georges.silva@cac-frank-popper.fr</a>
+        </td>
+        <td class="colonneAction">
+            <input type="hidden" name="ref" value="MY17-09-11-114726">
+                        <!--<a href="javascript: void(0);" onclick="aPayerCommandeBis('MY17-09-11-114726');"
+               class="bouton_action"><span>GetFacture</span></a>-->
+
+            <a href="javascript: void(0);" onclick="aCancelCommande('MY17-09-11-114726');"
+               class="bouton_action"><span>Modify</span></a>
+
+            <!--<a id="bebebe" href="javascript: void(0);" onclick="annulerCommande('MY17-09-11-114726');"
+               class="bouton_action deleteButton supprimer"><span>Cancel</span></a>-->
+
+            <a id="bebebe" href="javascript: void(0);" onclick="supprimerCommande('MY17-09-11-114726');"
+               class="bouton_action deleteButton supprimer"><span>Delete</span></a>
+
+
+
+            
+
+        </td>
+    </tr>
+        <tr class="content"  >
+        <td class="colonneRef"><a href='/offer/orderForm?ref=MY17-08-11-114446'
+                                  target='_blank'>MY17-08-11-114446</a></td>
+        <td class="colonneDateCommande">
+            11/08/2017 to 11:44        </td>
+        <td class="colonneDateExpiration">
+            1 mois        </td>
+
+        <td class="colonneIdCLient">
+            <a href="/client/edit?id=436869">436869</a><a
+                href="/user/edit?id=1296629127">(1296629127</a>)
+        </td>
+
+        <td class="colonnePays">
+            France        </td>
+
+        <td class="colonneMontantHt">
+                            7                    </td>
+
+
+        <td class="colonneTypePaiment">
+
+            Abonnement par carte                    </td>
+        <td class="colonneTypeCommande">Renouvellement de compte(s) </td>
+        <td class="colonneStatut">Remboursée </td>
+
+        <td class="colonneEntreprise"><a target="_blank"
+                                         href="/client/edit?id=436869">centre d'art contemporain frank popper</a>
+        </td>
+        <td class="colonneUserEmail">
+            <a href="/client/edit?id=436869">georges.silva@cac-frank-popper.fr</a>
+        </td>
+        <td class="colonneAction">
+            <input type="hidden" name="ref" value="MY17-08-11-114446">
+                        <!--<a href="javascript: void(0);" onclick="aPayerCommandeBis('MY17-08-11-114446');"
+               class="bouton_action"><span>GetFacture</span></a>-->
+
+            <a href="javascript: void(0);" onclick="aCancelCommande('MY17-08-11-114446');"
+               class="bouton_action"><span>Modify</span></a>
+
+            <!--<a id="bebebe" href="javascript: void(0);" onclick="annulerCommande('MY17-08-11-114446');"
+               class="bouton_action deleteButton supprimer"><span>Cancel</span></a>-->
+
+            <a id="bebebe" href="javascript: void(0);" onclick="supprimerCommande('MY17-08-11-114446');"
+               class="bouton_action deleteButton supprimer"><span>Delete</span></a>
+
+
+
+            
+
+        </td>
+    </tr>
+        <tr class="content"  >
+        <td class="colonneRef"><a href='/offer/orderForm?ref=MY17-07-11-114655'
+                                  target='_blank'>MY17-07-11-114655</a></td>
+        <td class="colonneDateCommande">
+            11/07/2017 to 11:46        </td>
+        <td class="colonneDateExpiration">
+            1 mois        </td>
+
+        <td class="colonneIdCLient">
+            <a href="/client/edit?id=436869">436869</a><a
+                href="/user/edit?id=1296629127">(1296629127</a>)
+        </td>
+
+        <td class="colonnePays">
+            France        </td>
+
+        <td class="colonneMontantHt">
+                            <span class="editable"> 7</span>
+                    </td>
+
+
+        <td class="colonneTypePaiment">
+
+            Abonnement par carte                            (9d5b01867dfe)
+                    </td>
+        <td class="colonneTypeCommande">Renouvellement de compte(s) </td>
+        <td class="colonneStatut">Encaissée </td>
+
+        <td class="colonneEntreprise"><a target="_blank"
+                                         href="/client/edit?id=436869">centre d'art contemporain frank popper</a>
+        </td>
+        <td class="colonneUserEmail">
+            <a href="/client/edit?id=436869">georges.silva@cac-frank-popper.fr</a>
+        </td>
+        <td class="colonneAction">
+            <input type="hidden" name="ref" value="MY17-07-11-114655">
+                        <!--<a href="javascript: void(0);" onclick="aPayerCommandeBis('MY17-07-11-114655');"
+               class="bouton_action"><span>GetFacture</span></a>-->
+
+            <a href="javascript: void(0);" onclick="aCancelCommande('MY17-07-11-114655');"
+               class="bouton_action"><span>Modify</span></a>
+
+            <!--<a id="bebebe" href="javascript: void(0);" onclick="annulerCommande('MY17-07-11-114655');"
+               class="bouton_action deleteButton supprimer"><span>Cancel</span></a>-->
+
+            <a id="bebebe" href="javascript: void(0);" onclick="supprimerCommande('MY17-07-11-114655');"
+               class="bouton_action deleteButton supprimer"><span>Delete</span></a>
+
+
+
+            
+
+        </td>
+    </tr>
+        <tr class="content"  >
+        <td class="colonneRef"><a href='/offer/orderForm?ref=MY17-06-11-114409'
+                                  target='_blank'>MY17-06-11-114409</a></td>
+        <td class="colonneDateCommande">
+            11/06/2017 to 11:44        </td>
+        <td class="colonneDateExpiration">
+            1 mois        </td>
+
+        <td class="colonneIdCLient">
+            <a href="/client/edit?id=436869">436869</a><a
+                href="/user/edit?id=1296629127">(1296629127</a>)
+        </td>
+
+        <td class="colonnePays">
+            France        </td>
+
+        <td class="colonneMontantHt">
+                            <span class="editable"> 7</span>
+                    </td>
+
+
+        <td class="colonneTypePaiment">
+
+            Abonnement par carte                            (edc7a18ef765)
+                    </td>
+        <td class="colonneTypeCommande">Renouvellement de compte(s) </td>
+        <td class="colonneStatut">Encaissée </td>
+
+        <td class="colonneEntreprise"><a target="_blank"
+                                         href="/client/edit?id=436869">centre d'art contemporain frank popper</a>
+        </td>
+        <td class="colonneUserEmail">
+            <a href="/client/edit?id=436869">georges.silva@cac-frank-popper.fr</a>
+        </td>
+        <td class="colonneAction">
+            <input type="hidden" name="ref" value="MY17-06-11-114409">
+                        <!--<a href="javascript: void(0);" onclick="aPayerCommandeBis('MY17-06-11-114409');"
+               class="bouton_action"><span>GetFacture</span></a>-->
+
+            <a href="javascript: void(0);" onclick="aCancelCommande('MY17-06-11-114409');"
+               class="bouton_action"><span>Modify</span></a>
+
+            <!--<a id="bebebe" href="javascript: void(0);" onclick="annulerCommande('MY17-06-11-114409');"
+               class="bouton_action deleteButton supprimer"><span>Cancel</span></a>-->
+
+            <a id="bebebe" href="javascript: void(0);" onclick="supprimerCommande('MY17-06-11-114409');"
+               class="bouton_action deleteButton supprimer"><span>Delete</span></a>
+
+
+
+            
+
+        </td>
+    </tr>
+        <tr class="content"  >
+        <td class="colonneRef"><a href='/offer/orderForm?ref=MY17-05-11-114632'
+                                  target='_blank'>MY17-05-11-114632</a></td>
+        <td class="colonneDateCommande">
+            11/05/2017 to 11:46        </td>
+        <td class="colonneDateExpiration">
+            1 mois        </td>
+
+        <td class="colonneIdCLient">
+            <a href="/client/edit?id=436869">436869</a><a
+                href="/user/edit?id=1296629127">(1296629127</a>)
+        </td>
+
+        <td class="colonnePays">
+            France        </td>
+
+        <td class="colonneMontantHt">
+                            <span class="editable"> 7</span>
+                    </td>
+
+
+        <td class="colonneTypePaiment">
+
+            Abonnement par carte                            (9ac0b5f43e29)
+                    </td>
+        <td class="colonneTypeCommande">Renouvellement de compte(s) </td>
+        <td class="colonneStatut">Encaissée </td>
+
+        <td class="colonneEntreprise"><a target="_blank"
+                                         href="/client/edit?id=436869">centre d'art contemporain frank popper</a>
+        </td>
+        <td class="colonneUserEmail">
+            <a href="/client/edit?id=436869">georges.silva@cac-frank-popper.fr</a>
+        </td>
+        <td class="colonneAction">
+            <input type="hidden" name="ref" value="MY17-05-11-114632">
+                        <!--<a href="javascript: void(0);" onclick="aPayerCommandeBis('MY17-05-11-114632');"
+               class="bouton_action"><span>GetFacture</span></a>-->
+
+            <a href="javascript: void(0);" onclick="aCancelCommande('MY17-05-11-114632');"
+               class="bouton_action"><span>Modify</span></a>
+
+            <!--<a id="bebebe" href="javascript: void(0);" onclick="annulerCommande('MY17-05-11-114632');"
+               class="bouton_action deleteButton supprimer"><span>Cancel</span></a>-->
+
+            <a id="bebebe" href="javascript: void(0);" onclick="supprimerCommande('MY17-05-11-114632');"
+               class="bouton_action deleteButton supprimer"><span>Delete</span></a>
+
+
+
+            
+
+        </td>
+    </tr>
+        <tr class="content"  >
+        <td class="colonneRef"><a href='/offer/orderForm?ref=MY17-04-11-121921'
+                                  target='_blank'>MY17-04-11-121921</a></td>
+        <td class="colonneDateCommande">
+            11/04/2017 to 12:19        </td>
+        <td class="colonneDateExpiration">
+            1 mois        </td>
+
+        <td class="colonneIdCLient">
+            <a href="/client/edit?id=436869">436869</a><a
+                href="/user/edit?id=1296629127">(1296629127</a>)
+        </td>
+
+        <td class="colonnePays">
+            France        </td>
+
+        <td class="colonneMontantHt">
+                            <span class="editable"> 7</span>
+                    </td>
+
+
+        <td class="colonneTypePaiment">
+
+            Abonnement par carte                            (681357931cd2)
+                    </td>
+        <td class="colonneTypeCommande">Upgrade de compte(s) </td>
+        <td class="colonneStatut">Encaissée </td>
+
+        <td class="colonneEntreprise"><a target="_blank"
+                                         href="/client/edit?id=436869">centre d'art contemporain frank popper</a>
+        </td>
+        <td class="colonneUserEmail">
+            <a href="/client/edit?id=436869">georges.silva@cac-frank-popper.fr</a>
+        </td>
+        <td class="colonneAction">
+            <input type="hidden" name="ref" value="MY17-04-11-121921">
+                        <!--<a href="javascript: void(0);" onclick="aPayerCommandeBis('MY17-04-11-121921');"
+               class="bouton_action"><span>GetFacture</span></a>-->
+
+            <a href="javascript: void(0);" onclick="aCancelCommande('MY17-04-11-121921');"
+               class="bouton_action"><span>Modify</span></a>
+
+            <!--<a id="bebebe" href="javascript: void(0);" onclick="annulerCommande('MY17-04-11-121921');"
+               class="bouton_action deleteButton supprimer"><span>Cancel</span></a>-->
+
+            <a id="bebebe" href="javascript: void(0);" onclick="supprimerCommande('MY17-04-11-121921');"
+               class="bouton_action deleteButton supprimer"><span>Delete</span></a>
+
+
+
+            
+
+        </td>
+    </tr>
+        <tr class="content"  >
+        <td class="colonneRef"><a href='/offer/orderForm?ref=MY17-04-11-120759'
+                                  target='_blank'>MY17-04-11-120759</a></td>
+        <td class="colonneDateCommande">
+            11/04/2017 to 12:07        </td>
+        <td class="colonneDateExpiration">
+            1 mois        </td>
+
+        <td class="colonneIdCLient">
+            <a href="/client/edit?id=436869">436869</a><a
+                href="/user/edit?id=1296629127">(1296629127</a>)
+        </td>
+
+        <td class="colonnePays">
+            France        </td>
+
+        <td class="colonneMontantHt">
+                            <span class="editable"> 7</span>
+                    </td>
+
+
+        <td class="colonneTypePaiment">
+
+            Abonnement par carte                    </td>
+        <td class="colonneTypeCommande">Upgrade de compte(s) </td>
+        <td class="colonneStatut">En attente de paiement </td>
+
+        <td class="colonneEntreprise"><a target="_blank"
+                                         href="/client/edit?id=436869">centre d'art contemporain frank popper</a>
+        </td>
+        <td class="colonneUserEmail">
+            <a href="/client/edit?id=436869">georges.silva@cac-frank-popper.fr</a>
+        </td>
+        <td class="colonneAction">
+            <input type="hidden" name="ref" value="MY17-04-11-120759">
+                            <a href="javascript: void(0);" onclick="aPayerCommande('MY17-04-11-120759');"
+                   class="bouton_action"><span>Validate</span></a>
+                        <!--<a href="javascript: void(0);" onclick="aPayerCommandeBis('MY17-04-11-120759');"
+               class="bouton_action"><span>GetFacture</span></a>-->
+
+            <a href="javascript: void(0);" onclick="aCancelCommande('MY17-04-11-120759');"
+               class="bouton_action"><span>Modify</span></a>
+
+            <!--<a id="bebebe" href="javascript: void(0);" onclick="annulerCommande('MY17-04-11-120759');"
+               class="bouton_action deleteButton supprimer"><span>Cancel</span></a>-->
+
+            <a id="bebebe" href="javascript: void(0);" onclick="supprimerCommande('MY17-04-11-120759');"
+               class="bouton_action deleteButton supprimer"><span>Delete</span></a>
+
+
+
+            
+
+        </td>
+    </tr>
+    <tr class="content">
+        <td class="colonneRef"></td>
+        <td class="colonneDateCommande"></td>
+        <td class="colonneIdCLient"></td>
+        <td class="colonneMontantHt"></td>
+        <td class="colonneTypePaiment"></td>
+        <td class="colonneTypeCommande"></td>
+        <td class="colonneStatut"></td>
+        <td class="colonneEntreprise"></td>
+        <td class="colonneUserEmail"></td>
+        <td class="colonneAction"></td>
+    </tr>
+    <tr class="content">
+        <td class="colonneRef"></td>
+        <td class="colonneDateCommande"></td>
+        <td class="colonneIdCLient"></td>
+        <td class="colonneMontantHt"></td>
+        <td class="colonneTypePaiment"></td>
+        <td class="colonneTypeCommande"></td>
+        <td class="colonneStatut"></td>
+        <td class="colonneEntreprise"></td>
+        <td class="colonneUserEmail"></td>
+        <td class="colonneAction"></td>
+    </tr>
+    <tr class="content">
+        <td class="colonneRef"></td>
+        <td class="colonneDateCommande"></td>
+        <td class="colonneIdCLient"></td>
+        <td class="colonneMontantHt"></td>
+        <td class="colonneTypePaiment"></td>
+        <td class="colonneTypeCommande"></td>
+        <td class="colonneStatut"></td>
+        <td class="colonneEntreprise"></td>
+        <td class="colonneUserEmail"></td>
+        <td class="colonneAction"></td>
+    </tr>
+    <tr class="content">
+        <td class="colonneRef"></td>
+        <td class="colonneDateCommande"></td>
+        <td class="colonneIdCLient"></td>
+        <td class="colonneMontantHt"></td>
+        <td class="colonneTypePaiment"></td>
+        <td class="colonneTypeCommande"></td>
+        <td class="colonneStatut"></td>
+        <td class="colonneEntreprise"></td>
+        <td class="colonneUserEmail"></td>
+        <td class="colonneAction"></td>
+    </tr>
+<div id="popupDetailMajEchance">
+
+</div>
+
+<div id="popupSuccess" >
+
+   <b>Echéance mise à  jour !</b>
+
+</div>
+<script type="text/javascript">
+
+
+
+    function supprimerCommande(ref) {
+
+        confirm("Êtes-vous sûr de vouloir supprimer la commande "+ref+" ?");
+        JQ.ajax({
+            type: "POST",
+            url: configPath + 'client/deleteCommande',
+            data: {'ref': ref},
+            async: false,
+            success: function (data) {
+
+                if(data.code == 200){
+                    // alert("success"+data.message);
+                    window.location.reload();
+                }else{
+                    // alert("Une erreur est survenue");
+                    window.location.reload();
+                }
+
+            },
+            error: function (xhr, status, error) {
+                alert(xhr.responseText);
+            }
+        });
+    }
+
+    var timeoutEvent =
+    {
+        closeSuccess: function (id) {
+            var img = JQ(id);
+            img.fadeOut('slow', function () {
+                img.remove();
+            });
+        }
+    };
+
+    var mongestionnaireAPI = new ApiGestionnaire();
+
+    ApiGestionnaire.prototype.majEcheanceApi = function($idCommande,$idClient){
+
+        JQ("#popupDetailMajEchance").dialog({
+            "height": 180,
+            "width": 400,
+
+            title: "Vous êtes sur le point de modifier le montant de l'échéance sur l'api pour le prochain prélèvement SEPA.",
+            buttons: {
+
+                "Valider": function(){
+                    JQ(this).dialog("close");
+                    JQ("#myloader").css("visibility","visible");
+                    var newDateEcheance = JQ("#newDateEcheance").datepicker({ dateFormat: 'dd-mm-yy' }).val();
+
+
+
+                    JQ.ajax({
+
+                        type: "POST",
+                        url: configPath + 'client/MajEcheanceAPI',
+                        data: {'idCommande': $idCommande, 'idClient':$idClient, 'newDateEcheance':newDateEcheance},
+                        dataType: 'json',
+                        //contentType: "application/json; charset=utf-8",
+
+                        async: false,
+                        success: function (data) {
+                           // alert("Data from Server"+JSON.stringify(data));
+                          //  alert("Echance mise a  jour");
+                            JQ("#popupSuccess").dialog({
+                                "height": 180,
+                                "width": 400,
+                                buttons: {
+
+                                    "Fermer": function () {
+                                        JQ(this).dialog("close");
+                                    }
+                                }
+                            });
+                            JQ("#myloader").hide();
+                        },
+                        error: function(requestObject, error, errorThrown) {
+                            alert(error);
+                            alert(errorThrown);
+                            JQ("#myloader").css("visibility","hidden");
+                        }
+
+
+                    });
+                },
+                "Annuler ":function(){
+                    JQ(this).dialog("close");
+                  //  JQ("#myloader").css("visibility","visible");
+
+
+
+                    /*JQ.ajax({
+                        type: "POST",
+                        url: configPath + 'client/MajEcheanceAPI',
+                        data: {'idCommande': $idCommande, 'idClient':$idClient, 'newDateEcheance':""},
+                        dataType: 'json',
+                        //contentType: "application/json; charset=utf-8",
+
+                        async: false,
+                        success: function (data) {
+                            JQ("#popupSuccess").dialog({
+                                "height": 180,
+                                "width": 400,
+                                buttons: {
+
+                                    "Fermer": function () {
+                                        JQ(this).dialog("close");
+                                    }
+                                }
+                            });
+                            JQ("#myloader").hide();
+                        },
+                        error: function(requestObject, error, errorThrown) {
+                            alert(error);
+                            alert(errorThrown);
+                            JQ("#myloader").css("visibility","hidden");
+                        }
+
+
+                    });*/
+                }
+            }
+        });
+
+
+
+
+    };
+
+
+
+
+
+
+
+
+    var a =  (function () {
+        JQ(document).ready(function () {
+            JQ('#tableCommande .colonneMontantHt .editable').editable(updateMontantCommande,
+                {
+                    indicator: 'Backup...',
+                    placeholder: '',
+                    event: 'click.editable',
+                    cssclass: 'editableForm',
+                    width: '100%'
+                });
+
+
+            /*________________________________________________________*/
+            function updateMontantCommande(content, settings, event) {
+                var form = jQuery(event.currentTarget);
+                var input = form.children('input');
+                var td = form.parent();
+
+                var ref = form.parent().parent().parent().find('input[name=ref]').val();//id du champ
+
+                var object = this;
+                object.editing = true;
+                td.html(settings.indicator);
+
+                JQ.ajax({
+                    type: "POST",
+                    url: configPath + 'client/updateMontantCommande',
+                    data: {'ref': ref, 'montant': input.val()},
+                    dataType: 'json',
+                    async: false,
+                    success: function (data) {
+                        td.html(input.val());
+                    },
+                    error: function (xhr, status, error) {
+                        alert('error');
+                        object.editing = true;
+                        object.reset(form, settings, self);
+                    }
+                });
+            }
+
+          //  JQ("#newDateEcheance").datepicker(JQ.datepicker.regional["fr"]);
+
+            JQ.datepicker.setDefaults(JQ.datepicker.regional["fr"]);
+
+            JQ("#popupSuccess").hide();
+
+            JQ("#popupDetailMajEchance").hide();
+
+
+
+            JQ("#newDateEcheance").datepicker({ dateFormat: "yy-mm-dd" });
+           // JQ("#newDateEcheance").datepicker(JQ.datepicker.regional["fr"]);
+
+
+            JQ(".expirationInput").datepicker(
+                {
+                    dateFormat: 'd/m/yy',
+                    minDate: 0,
+                    dayNames: ['Sunday', 'Mo', 'Tuesday', 'Wednesday', 'Thursday', 'Fr', 'Saturday'],
+                    dayNamesMin: ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'],
+                    onClose: function (dateText, inst) {
+                        var input = JQ(inst.input);
+                        var ref = input.parent().parent().find('input[name=ref]').val();
+
+                        JQ.ajax({
+                            type: "POST",
+                            url: configPath + 'client/updateCommande',
+                            data: {'date': dateText, 'ref': ref},
+                            async: false,
+                            cache: false,
+                            dataType: 'json',
+                            success: function (data) {
+                                if (data.code == 0) {
+                                    JQ('<img class="successUpdate" src="/images/accept.png" alt="" />').insertAfter(input);
+                                    window.setTimeout("timeoutEvent.closeSuccess('img.successUpdate')", 700);
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                            }
+                        });
+                    }
+                });
+        });
+
+    })();
+
+</script>
+      </table>
+      
+      <div id="paginationBas">
+          <div class="pagination">
+                      <div class="pagination_inner"></div>
+                   </div><!--pagination-->      </div>
+      <div style="clear:both"></div>
+  </div>
+  
+  <div id='aPayerCommande' style='display: none;height: 250px!important;margin-left: 15px'></div>
+  <div id='aCancelCommande' style='display: none;height: 470px!important;margin-left: 19px'></div>
+  <div id='annulerCommande' style='display: none;height: 470px!important;margin-left: 19px'></div>
+
+  <script type="text/javascript">
+  
+  function aPayerCommande(ref) {
+		JQ.ajax({
+			type: "POST",
+			url: configPath + 'client/validCommande',
+			data: { 'ref':ref },
+			async:false,
+			success: function(data)
+			{
+				JQ('#aPayerCommande').html(data);
+				JQ("#aPayerCommande").dialog(
+				{
+					hide: "fadeOut",
+					resizable: true,
+					modal: true,
+					closeOnEscape:true ,
+					width:550,
+					height:300,
+					title: 'Validation de la commande  ' + ref,
+					 buttons:  
+					{
+						'Validate': function() 
+						{       
+							JQ.ajax({
+								type: "POST",
+								url: configPath + 'client/validCommande',
+								data: { 'state': JQ('#state').val(), 'generate-invoice':JQ('select[name=generate-invoice]').val(), 'ref':ref, 'callback':1, 'mode_paiement':JQ('#mode_paiement').val(), 'banque':JQ('#banque').val(), 'numero_paiement':JQ('#numero_paiement').val() , 'statut':JQ('#commandeStatut').val()},
+								async:false,
+								success: function(data)
+								{
+								    if(data == 0)
+										window.location.href='/client/listingCommandes?idClient=436869';
+								}
+                ,
+                 error:function(xhr, status, error) 
+    		         {	   
+                    alert('Une erreur est survenue');
+                 } 
+							}); 
+						},
+						'Cancel': function() 
+						{
+							JQ('#aPayerCommande').dialog('close');
+						}
+					}
+				});
+			}
+		});
+	}
+	 function aPayerCommandeBis(ref) {
+		JQ.ajax({
+			type: "POST",
+			url: configPath + 'client/validCommande',
+			data: { 'ref':ref },
+			async:false,
+			success: function(data)
+			{
+				JQ('#aPayerCommande').html(data);
+				JQ("#aPayerCommande").dialog(
+				{
+					hide: "fadeOut",
+					resizable: true,
+					modal: true,
+					closeOnEscape:true ,
+					width:550,
+					height:300,
+					title: 'Validation de la commande  ' + ref,
+					 buttons:
+					{
+						'Validate': function()
+						{
+							JQ.ajax({
+								type: "POST",
+								url: configPath + 'client/validCommande',
+								data: { 'state': JQ('#state').val(), 'generate-invoice':JQ('select[name=generate-invoice]').val(), 'ref':ref, 'callback':32, 'mode_paiement':JQ('#mode_paiement').val(), 'banque':JQ('#banque').val(), 'numero_paiement':JQ('#numero_paiement').val() , 'statut':JQ('#commandeStatut').val()},
+								async:false,
+								success: function(data)
+								{
+								    if(data == 0) {
+										window.location.href='/client/invoiceList?client=436869';
+									}
+								}
+                ,
+                 error:function(xhr, status, error)
+    		         {
+                    alert('Une erreur est survenue');
+                 }
+							});
+						},
+						'Cancel': function()
+						{
+							JQ('#aPayerCommande').dialog('close');
+						}
+					}
+				});
+			}
+		});
+	}
+  function aCancelCommande(ref)
+  {
+		JQ.ajax({
+			type: "get",
+			url: configPath + 'client/cancelCommande',
+			data: { 'ref':ref },
+			async:false,
+			success: function(data)
+			{
+			  JQ('#aCancelCommande').html(data);
+			  
+				JQ("#aCancelCommande").dialog(
+				{
+					hide: "fadeOut",
+					resizable: true,
+					modal: true,
+					closeOnEscape:true ,
+					width:600,
+					height:500,
+					title: 'Modifier le statut de la commande  ' + ref,
+					buttons:  
+					{
+						'Validate': function() 
+						{
+						  var etat = JQ('#aCancelCommande #etat').val();
+              var duration = JQ('#aCancelCommande #duration').val();
+
+              var hide_name = JQ('#aCancelCommande input[name=hide_name]').is(':checked');
+              var draw_generic_name = JQ('#aCancelCommande input[name=draw_generic_name]').is(':checked');
+              var custom_ref_val = JQ('#aCancelCommande input[name=custom_ref_val]').val();
+              var free_field = JQ('#aCancelCommande textarea[name=free_field]').val();
+              var draw_mention = JQ('#aCancelCommande input[name=draw_mention]').is(':checked');
+              var free_field2 = JQ('#aCancelCommande textarea[name=free_field2]').val();
+              var declination_type = JQ('#aCancelCommande select[name=declination_type]').val();
+              
+              var offre_declination = JQ('[name=offre-declination]').val();
+              var type_de_commande = JQ('#aCancelCommande select[name=type_de_commande]').val();
+              var tabId = JQ('#aCancelCommande input[name^=idlisteAcompte[]').val();
+              var tabMessageAcompte = JQ('#aCancelCommande input[name^=message]').val();
+              var tabMontantAcompte = JQ('#aCancelCommande input[name^=montant]').val();
+            
+							JQ.ajax({
+								type: "POST",
+								url: configPath + 'client/cancelCommande',
+								data: { 
+                  'ref':ref, 'etat':etat , 'duration': duration, 'hide_name':hide_name, 'draw_generic_name':draw_generic_name, 
+                  'custom_ref_val':custom_ref_val,'free_field':free_field, 'draw_mention':draw_mention, 'free_field2':free_field2, 
+                  'declination_type':declination_type, 'offre-declination':offre_declination, 'type_de_commande':type_de_commande,
+               'idlisteAcompte':tabId, 'tabMessageAcompte':tabMessageAcompte , 'tabMontantAcompte' : tabMontantAcompte
+            },
+								async:false,
+								success: function(data)
+								{
+									//window.location.href='/client/listCommande?search='+ref;
+								        JQ("#aCancelCommande").dialog('close');
+                                                                        window.location.reload() ; 
+                                                                }
+                ,
+                 error:function(xhr, status, error) 
+    		         {	   
+                    alert(xhr.responseText);
+                 } 
+							}); 
+						},
+						'Cancel': function() 
+						{
+							 JQ('#aCancelCommande').dialog('close');
+						}
+					}
+				});
+			}
+		});
+  }
+  function annulerCommande(ref)
+  {
+		JQ.ajax({
+			type: "get",
+			url: configPath + 'client/cancelCommande',
+			data: { 'ref':ref },
+			async:false,
+			success: function(data)
+			{
+			  JQ('#annulerCommande').html(data);
+
+				JQ("#annulerCommande").dialog(
+				{
+					hide: "fadeOut",
+					resizable: true,
+					modal: true,
+					closeOnEscape:true ,
+					width:600,
+					height:500,
+					title: 'Annuler le statut de la commande  ' + ref,
+					buttons:
+					{
+						'Validate': function()
+						{
+						  var etat = JQ('#annulerCommande #etat').val();
+              var duration = JQ('#annulerCommande #duration').val();
+
+              var hide_name = JQ('#annulerCommande input[name=hide_name]').is(':checked');
+              var draw_generic_name = JQ('#annulerCommande input[name=draw_generic_name]').is(':checked');
+              var custom_ref_val = JQ('#annulerCommande input[name=custom_ref_val]').val();
+              var free_field = JQ('#annulerCommande textarea[name=free_field]').val();
+              var draw_mention = JQ('#annulerCommande input[name=draw_mention]').is(':checked');
+              var free_field2 = JQ('#annulerCommande textarea[name=free_field2]').val();
+              var declination_type = JQ('#annulerCommande select[name=declination_type]').val();
+
+              var offre_declination = JQ('[name=offre-declination]').val();
+              var type_de_commande = JQ('#annulerCommande select[name=type_de_commande]').val();
+              var tabId = JQ('#annulerCommande input[name^=idlisteAcompte[]').val();
+              var tabMessageAcompte = JQ('#annulerCommande input[name^=message]').val();
+              var tabMontantAcompte = JQ('#annulerCommande input[name^=montant]').val();
+
+							JQ.ajax({
+								type: "POST",
+								url: configPath + 'client/cancelCommande',
+								data: {
+                  'ref':ref, 'etat':etat , 'duration': duration, 'hide_name':hide_name, 'draw_generic_name':draw_generic_name,
+                  'custom_ref_val':custom_ref_val,'free_field':free_field, 'draw_mention':draw_mention, 'free_field2':free_field2,
+                  'declination_type':declination_type, 'offre-declination':offre_declination, 'type_de_commande':type_de_commande,
+               'idlisteAcompte':tabId, 'tabMessageAcompte':tabMessageAcompte , 'tabMontantAcompte' : tabMontantAcompte
+            },
+								async:false,
+								success: function(data)
+								{
+									//window.location.href='/client/listCommande?search='+ref;
+								        JQ("#annulerCommande").dialog('close');
+                                                                        window.location.reload() ;
+                                                                }
+                ,
+                 error:function(xhr, status, error)
+    		         {
+                    alert(xhr.responseText);
+                 }
+							});
+						},
+						'Cancel': function()
+						{
+							 JQ('#annulerCommande').dialog('close');
+						}
+					}
+				});
+			}
+		});
+  }
+  
+  
+  
+</script>
+
+<script>
+     function exportCsv(){
+
+		JQ('#errorMsg').css("display","none");
+              var mois = JQ('#mois').val();
+              var annee = JQ('#annee').val();
+              var status =  JQ('#status').val();
+ var perPage =  JQ('#perPage').val();
+            
+                  if(empty(mois) && empty(annee) && empty(status) ){
+
+			JQ('#errorMsg').text("");
+                  JQ('#errorMsg').css("display","block");
+                  JQ('#errorMsg').text("Veuillez sélèctionnez les critères de recherches ");
+                 
+              }else{
+                  
+                   document.location.href = "csvCommandes?mois="+mois+"&annee="+annee+"&status="+status+"&perPage="+perPage;
+              
+              }
+              
+    
+    
+  } 
+    
+  </script>
+      
+    </div>
+  </div>  <!-- fin tab --> 
+</div>
+  </div>
+</div>
+<!--<div id="footerEc">
+    <a href=""></a>
+    <a href=""></a>
+    <a href=""></a>
+    <a href="/doc/fr/cgv.pdf" target="_blank" rel="nofollow"></a>
+    <a href=""
+       target="_blank" rel="nofollow"></a>
+    <a href=""></a>
+    <a href=""></a>
+    <a href=""></a>
+            <a href=""
+            ></a>
+        <a href=""></a>
+    <br/><br/>
+</div>-->
+<div style="clear:both"></div>
+
+<div class="footer">
+    <div class="copyright">
+        <span class="sloganFooter"><a href="http://www.dropcloud.fr/"
+                                      target="_blank">weSend is a solution published by DropCloud</a></span>
+        <img alt="transfer large documents free" class="copyrightBarre"
+             src="/images/barre.png"/>
+        <a href="http://www.dropcloud.fr/" target="_blank">
+            <img alt="transfer large documents securely"
+                 src="/images/logo/logo_footer_dropcloud.png"/>
+        </a>
+    </div>
+    <div style="clear:both"></div>
+</div>
+
+<div id='souscription_abo_particulier' style='display: none;height: 420px !important;'
+     title="Our packages">
+</div>
+
+                
+
+<script type="text/javascript">
+    function openAchatCredit() {
+        var div = JQ('#achat_credits');
+        JQ('#achat_credits iframe').remove();
+        div.append('<iframe frameborder="0" src="https://www2.wesend.com/offer/buyCredit?id=1&template=iframe" style="width: 100%; height: 350px; overflow: hidden;"></iframe>');
+        JQ('#achat_credits').dialog(
+            {
+                resizable: true,
+                modal: true,
+                closeOnEscape: true,
+                width: 800,
+                height: 450,
+            });
+    }
+    function openAbonnementParticulier(cle) {
+        var div = JQ('#souscription_abo_particulier');
+        var error_limit_nb_destinataire = "Vous avez dépassé le nombre maximum de destinataires (20)";
+        var error_limit_nb_envoi = "Vous avez dépassé votre limite d\'envoi quotienne";
+
+        JQ('#souscription_abo_particulier iframe').remove();
+        JQ('#messageError').html("");
+        var titre = "Our packages";
+        switch (cle) {
+            case 1:
+                div.append('<iframe frameborder="0" src="https://www2.wesend.com/offer/souscriptionParticulier?id=1&template=iframe&message=1" style="width: 100%; height: 380px; overflow: hidden;" scrolling="no"></iframe>');
+                titre = "Our packages";
+                JQ('#messageError').hide();
+                break;
+            case 2:
+                div.append('<iframe frameborder="0" src="https://www2.wesend.com/offer/souscriptionParticulier?id=1&template=iframe&message=2" style="width: 100%; height: 410px; overflow: hidden;" scrolling="no"></iframe>');
+                titre = "Droits insuffisants";
+                break;
+            case 3:
+                div.append('<iframe frameborder="0" src="https://www2.wesend.com/offer/souscriptionParticulier?id=1&template=iframe&message=3" style="width: 100%; height: 410px; overflow: hidden;" scrolling="no"></iframe>');
+                titre = "Droits insuffisants";
+                break;
+            case 4:
+                div.append('<iframe frameborder="0" src="https://www2.wesend.com/offer/souscriptionParticulier?id=1&template=iframe&message=4" style="width: 100%; height: 410px; overflow: hidden;" scrolling="no"></iframe>');
+                titre = "Droits insuffisants";
+                break;
+            case 5:
+                div.append('<iframe frameborder="0" src="https://www2.wesend.com/offer/souscriptionParticulier?id=1&template=iframe&message=5" style="width: 100%; height: 410px; overflow: hidden;" scrolling="no"></iframe>');
+                titre = "Droits insuffisants";
+                break;
+            case 6:
+                div.append('<iframe frameborder="0" src="https://www2.wesend.com/offer/souscriptionParticulier?id=1&template=iframe&message=6" style="width: 100%; height: 410px; overflow: hidden;" scrolling="no"></iframe>');
+                titre = " Vous avez dépassé le quotas d\'envoi mensuel limité à 100 Mo";
+                break;
+            case 7:
+                div.append('<iframe frameborder="0" src="https://www2.wesend.com/offer/souscriptionParticulier?id=1&template=iframe&message=6&max_file_size=true" style="width: 100%; height: 410px; overflow: hidden;" scrolling="no"></iframe>');
+                break;
+            case 8:
+                div.append('<iframe frameborder="0" src="https://www2.wesend.com/offer/souscriptionParticulier?id=1&template=iframe&message=6" style="width: 100%; height: 410px; overflow: hidden;" scrolling="no"></iframe>');
+                titre = error_limit_nb_destinataire;
+                break;
+            case 9:
+                div.append('<iframe frameborder="0" src="https://www2.wesend.com/offer/souscriptionParticulier?id=1&template=iframe&message=6" style="width: 100%; height: 410px; overflow: hidden;" scrolling="no"></iframe>');
+                titre = error_limit_nb_envoi;
+                break;
+                                        var fileSizeError = "Your file exceeds the maximum size required : 10Gb";
+                            titre = fileSizeError;
+                break;
+        }
+        JQ('#souscription_abo_particulier').dialog(
+            {
+                resizable: false,
+                modal: true,
+                closeOnEscape: true,
+                width: 820,
+                height: 460,
+                title: titre,
+                close: function (event, ui) {
+                    document.location.href = "https://www2.wesend.com/send";
+                }
+            });
+    }
+    (function () {
+        JQ(document).ready(function ($) {
+            JQ('#nav-utility .drop').bind('mouseover', setHover);
+            JQ('#nav-utility .drop').bind('mouseout', removeHover);
+            JQ('#openAchatCreditHeaderLink').bind('click', openAchatCredit);
+            JQ('.openAchatCreditHeaderLink_2').bind('click', openAchatCredit);
+            vtip();
+        });
+        function setHover(event) {
+            //pour ie
+            if (isIE6())
+                JQ('select').css('visibility', 'hidden');
+
+            JQ(event.currentTarget).addClass('hover');
+        }
+
+        function removeHover(event) {
+            if (isIE6())
+                JQ('select').css('visibility', 'visible');
+
+            JQ(event.currentTarget).removeClass('hover');
+        }
+    })();
+</script>
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-118420-20']);
+        _gaq.push(['_setDomainName', '.mycoursier.com']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+
+<script>
+    function getCookie(cname) {
+        var name = cname + "=";
+        var ca = document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') c = c.substring(1);
+            if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
+        }
+        return "";
+    }
+    function setCookie(cname, cvalue, exdays) {
+        var d = new Date();
+        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+        var expires = "expires=" + d.toUTCString();
+        document.cookie = cname + "=" + cvalue + "; " + expires;
+    }
+    var tomorrow = new Date();
+    var yesterday = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    var isCloseHeadBand = getCookie("headbandhid");
+    JQ(document).ready(function () {
+        if (isCloseHeadBand == 1) {
+            JQ("#last-version").hide();
+            JQ("#divHeaderLine").height("20");
+        } else {
+            JQ("#last-version").show();
+        }
+    });
+    JQ(".closeHeadBand").click(function () {
+        document.cookie = "headbandhid=1; expires=" + tomorrow;
+        JQ("#last-version").hide();
+        JQ("#divHeaderLine").height("20");
+    });
+    JQ(".deconnexion").click(function () {
+        yesterday.setDate(yesterday.getDate() + 1);
+        setCookie("headbandhid", 0, yesterday);
+    });
+
+            var fileSizeError = "Your file exceeds the maximum size required : 10Gb";
+    </script>
+</body>
+</html>

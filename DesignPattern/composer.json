@@ -1,0 +1,16 @@
+{
+    "name": "sdebiche/design-pattern",
+    "require": {
+        "michelf/php-markdown": "^1.7"
+    },
+
+    "autoload": {
+        "psr-4" : {"DesignPattern\\" : "DesignPattern"}
+    },
+    "authors": [
+        {
+            "name": "SakocheProd",
+            "email": "sdebiche@dropcloud.com"
+        }
+    ]
+}
